@@ -118,14 +118,14 @@ spec:
     stage('Containerize') {
       steps {
         container('kaniko') {
-          sh "sed -i 's,harbor.example.com,${env.HARBOR_URL},g' Dockerfile"
-          sh "/kaniko/executor --dockerfile Dockerfile --context `pwd` --skip-tls-verify --destination=${env.HARBOR_URL}/library/samples/spring-petclinic:v1.0.${env.BUILD_ID}"
+          sh "sed -i 's,harbor.example.com,${env.OCIR_URL},g' Dockerfile"
+          sh "/kaniko/executor --dockerfile Dockerfile --context `pwd` --skip-tls-verify --destination=${env.OCIR_URL}/${env.OCIR_NS}/samples/spring-petclinic:v1.0.${env.BUILD_ID}"
         }
       }
     }
     stage('Image Vulnerability Scan') {
       steps {
-        writeFile file: 'anchore_images', text: "${env.HARBOR_URL}/library/samples/spring-petclinic:v1.0.${env.BUILD_ID}"
+        writeFile file: 'anchore_images', text: "${env.OCIR_URL}/${env.OCIR_NS}/samples/spring-petclinic:v1.0.${env.BUILD_ID}"
         anchore name: 'anchore_images'
       }
     }
@@ -148,7 +148,7 @@ spec:
             # After cloning
             cd deploy
             # update values.yaml
-            sed -i -r 's,repository: (.+),repository: ${env.HARBOR_URL}/library/samples/spring-petclinic,' values.yaml
+            sed -i -r 's,repository: (.+),repository: ${env.OCIR_URL}/${env.OCIR_NS}/samples/spring-petclinic,' values.yaml
             sed -i 's/tag: v1.0.*/tag: v1.0.${env.BUILD_ID}/' values.yaml
             cat values.yaml
             git commit -am 'bump up version number'
