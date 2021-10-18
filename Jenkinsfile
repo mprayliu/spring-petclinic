@@ -119,6 +119,7 @@ spec:
       steps {
         container('kaniko') {
           sh "sed -i 's,harbor.example.com,${env.OCIR_URL},g' Dockerfile"
+          sh "sed -i 's,library,${env.OCIR_NS},g' Dockerfile"
           sh "/kaniko/executor --dockerfile Dockerfile --context `pwd` --skip-tls-verify --destination=${env.OCIR_URL}/${env.OCIR_NS}/samples/spring-petclinic:v1.0.${env.BUILD_ID}"
         }
       }
